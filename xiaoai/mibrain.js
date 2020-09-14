@@ -3,7 +3,7 @@ const request = require('./request')
 const { appendParam, randomString } = require('./utils')
 const { API } = require('./const')
 
-function mibrain (operation, method, { cookie, deviceId }) {
+function mibrain(operation, method, { cookie, deviceId }) {
   const param = {
     deviceId: deviceId,
     message: JSON.stringify(operation),
@@ -22,12 +22,23 @@ function mibrain (operation, method, { cookie, deviceId }) {
   })
 }
 
-function nlpResult ({ cookie, deviceId }) {
-  return mibrain({}, 'nlp_result_get', { cookie, deviceId })
+function nlpResult({ cookie, deviceId }) {
+  return request({
+    url: `https://userprofile.mina.mi.com/device_profile/conversation`,
+    method: 'GET',
+    data: {
+      timestamp: Date.now(),
+      limit: 1,
+      requestId: randomString(30)
+    },
+    headers: {
+      Cookie: cookie
+    }
+  })
 }
 
 // {"nlp_text":"关闭餐吧台灯","nlp":1,"nlp_execute":1,"tts":0,"tts_play":0}
-function aiService (msg, tts, tts_play, { cookie, deviceId }) {
+function aiService(msg, tts, tts_play, { cookie, deviceId }) {
   const message = { 'nlp_text': msg, 'nlp': 1, 'nlp_execute': 1, 'tts': tts, 'tts_play': tts_play }
   return mibrain(message, 'ai_service', { cookie, deviceId })
 }
