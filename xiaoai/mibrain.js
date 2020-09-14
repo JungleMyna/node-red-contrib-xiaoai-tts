@@ -21,9 +21,9 @@ function mibrain(operation, method, { cookie, deviceId }) {
     }
   })
 }
-
-function nlpResult({ cookie, deviceId }) {
-  return request({
+// 获取最新的一条对话记录
+async function nlpResult({ cookie, deviceId }) {
+  const res = await request({
     url: `https://userprofile.mina.mi.com/device_profile/conversation`,
     method: 'GET',
     data: {
@@ -32,9 +32,17 @@ function nlpResult({ cookie, deviceId }) {
       requestId: randomString(30)
     },
     headers: {
-      Cookie: cookie
+      Cookie: `${cookie};deviceId=${deviceId}`
     }
   })
+  const { timestamp, recordGroup } = res.data.records[0]
+  const { content } = JSON.parse(recordGroup).user
+
+  return {
+    datetime: new Date(timestamp).toLocaleString(),
+    timestamp,
+    content
+  }
 }
 
 // {"nlp_text":"关闭餐吧台灯","nlp":1,"nlp_execute":1,"tts":0,"tts_play":0}
